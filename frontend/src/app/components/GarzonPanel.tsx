@@ -31,7 +31,7 @@ export function GarzonPanel() {
       const turno = (hora >= 20 || hora < 7) ? "noche" : "dia";
 
       const res = await axios.get(
-        `http://localhost:3000/api/reportes/garzon/${usuario.id}/${turno}`
+        `https://casa-verde-production.up.railway.app/api/reportes/garzon/${usuario.id}/${turno}`
       );
 
       setStats({

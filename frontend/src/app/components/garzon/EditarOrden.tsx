@@ -60,7 +60,7 @@ export function EditarOrden({ open, orden, personalDisponible, onClose, onSaved,
 
   const guardarCambios = async () => {
     try {
-      await axios.put("http://localhost:3000/api/editar-montos", {
+      await axios.put("https://casa-verde-production.up.railway.app/api/editar-montos", {
         orden_id: orden.id,
         items: carrito,
       });
@@ -103,7 +103,7 @@ export function EditarOrden({ open, orden, personalDisponible, onClose, onSaved,
 
   const guardarCambiosInterno = async (carritoActualizado: any[]) => {
     try {
-      await axios.put("http://localhost:3000/api/editar-montos", {
+      await axios.put("https://casa-verde-production.up.railway.app/api/editar-montos", {
         orden_id: orden.id,
         items: carritoActualizado,
       });
@@ -214,7 +214,7 @@ export function EditarOrden({ open, orden, personalDisponible, onClose, onSaved,
             onClick={async () => {
               if (!window.confirm("¿Seguro que quieres eliminar este pedido?")) return;
               try {
-                await axios.delete(`http://localhost:3000/api/pedidos/${orden.id}`);
+                await axios.delete(`https://casa-verde-production.up.railway.app/api/pedidos/${orden.id}`);
                 onClose();
                 onDeleted?.();
               } catch (error) {

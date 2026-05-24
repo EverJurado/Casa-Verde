@@ -34,13 +34,13 @@ export function AdicionarPersonal() {
 
     try {
       if (isEditing) {
-        await axios.put(`http://localhost:3000/api/personal/${personalId}`, {
+        await axios.put(`https://casa-verde-production.up.railway.app/api/personal/${personalId}`, {
           nombre_artistico: nombreArtistico,
           celular,
         });
         alert('Personal actualizado correctamente');
       } else {
-        await axios.post('http://localhost:3000/api/personal', {
+        await axios.post('https://casa-verde-production.up.railway.app/api/personal', {
           nombre_artistico: nombreArtistico,
           celular,
         });

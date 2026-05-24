@@ -30,7 +30,7 @@ export function ChicasView() {
 
   const fetchAllPersonal = async () => {
     try {
-      const res = await axios.get("http://localhost:3000/api/personal/");
+      const res = await axios.get("https://casa-verde-production.up.railway.app/api/personal/");
       setAllPersonal(res.data);
     } catch (error) {
       console.error("Error al cargar personal:", error);
@@ -39,8 +39,8 @@ export function ChicasView() {
 
   const fetchPersonal = async () => {
     try {
-      const resDia = await axios.get("http://localhost:3000/api/reportes/chicas/turno/dia");
-      const resNoche = await axios.get("http://localhost:3000/api/reportes/chicas/turno/noche");
+      const resDia = await axios.get("https://casa-verde-production.up.railway.app/api/reportes/chicas/turno/dia");
+      const resNoche = await axios.get("https://casa-verde-production.up.railway.app/api/reportes/chicas/turno/noche");
 
       const procesar = (data: any, turno: "dia" | "noche") => {
         const arr: Personal[] = [];
@@ -85,7 +85,7 @@ export function ChicasView() {
 
     try {
       const res = await axios.get(
-        `http://localhost:3000/api/reportes/chicas/detalle/nombre/${p.nombre_artistico}/${fechaFormateada}`
+        `https://casa-verde-production.up.railway.app/api/reportes/chicas/detalle/nombre/${p.nombre_artistico}/${fechaFormateada}`
       );
       const data = res.data;
       generatePDF({

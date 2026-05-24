@@ -48,7 +48,7 @@ export function CrearUsuario() {
   });
 
   try {
-    const res = await fetch("http://localhost:3000/api/garzones/crear", {
+    const res = await fetch("https://casa-verde-production.up.railway.app/api/garzones/crear", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

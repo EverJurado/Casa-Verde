@@ -24,8 +24,8 @@ export function OrdenesAbiertas({ refreshKey, onAction }: OrdenesAbiertasProps) 
         const usuario = JSON.parse(localStorage.getItem("usuario"));
 
         const [resOrdenes, resPersonal] = await Promise.all([
-          axios.get("http://localhost:3000/api/pedidos/abiertas", { params: { garzon_id: usuario.id } }),
-          axios.get("http://localhost:3000/api/personal/"),
+          axios.get("https://casa-verde-production.up.railway.app/api/pedidos/abiertas", { params: { garzon_id: usuario.id } }),
+          axios.get("https://casa-verde-production.up.railway.app/api/personal/"),
         ]);
 
         setOrdenes(resOrdenes.data);

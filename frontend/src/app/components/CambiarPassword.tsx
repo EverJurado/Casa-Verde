@@ -40,7 +40,7 @@ export function CambiarPassword() {
 
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:3000/api/change-password', {
+      const res = await fetch('https://casa-verde-production.up.railway.app/api/change-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

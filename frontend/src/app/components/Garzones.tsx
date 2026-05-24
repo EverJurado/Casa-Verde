@@ -25,8 +25,8 @@ export function GarzonesView() {
     try {
       // Pedir datos de los turnos DIA y NOCHE
       const [resDia, resNoche] = await Promise.all([
-        axios.get('http://localhost:3000/api/reportes/jefa/dia'),
-        axios.get('http://localhost:3000/api/reportes/jefa/noche'),
+        axios.get('https://casa-verde-production.up.railway.app/api/reportes/jefa/dia'),
+        axios.get('https://casa-verde-production.up.railway.app/api/reportes/jefa/noche'),
       ]);
 
       const procesar = (data: any, turno: 'dia' | 'noche') =>

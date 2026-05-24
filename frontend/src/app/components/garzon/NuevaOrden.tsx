@@ -34,7 +34,7 @@ export function NuevaOrden({ open, onClose, onSave }: NuevaOrdenProps) {
   useEffect(() => {
     const fetchProductos = async () => {
       try {
-        const res = await axios.get('http://localhost:3000/api/productos');
+        const res = await axios.get('https://casa-verde-production.up.railway.app/api/productos');
         setProductos(res.data);
       } catch (error) {
         console.error('Error al cargar productos:', error);
@@ -46,7 +46,7 @@ export function NuevaOrden({ open, onClose, onSave }: NuevaOrdenProps) {
   useEffect(() => {
     const fetchPersonal = async () => {
       try {
-        const res = await axios.get('http://localhost:3000/api/personal');
+        const res = await axios.get('https://casa-verde-production.up.railway.app/api/personal');
         setPersonal(res.data);
       } catch (error) {
         console.error('Error al cargar personal:', error);
@@ -102,7 +102,7 @@ export function NuevaOrden({ open, onClose, onSave }: NuevaOrdenProps) {
         items: carrito,
       };
 
-      await axios.post("http://localhost:3000/api/pedidos", payload);
+      await axios.post("https://casa-verde-production.up.railway.app/api/pedidos", payload);
 
       setCarrito([]);
       onClose();

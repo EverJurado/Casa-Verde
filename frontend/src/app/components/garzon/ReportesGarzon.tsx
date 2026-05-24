@@ -31,14 +31,14 @@ export function ReportesGarzon() {
   }, [personalSeleccionado]);
 
   const fetchPersonal = async () => {
-    const res = await axios.get("http://localhost:3000/api/reportes/chicas");
+    const res = await axios.get("https://casa-verde-production.up.railway.app/api/reportes/chicas");
     setPersonal(res.data);
   };
 
   const fetchStats = async () => {
     try {
       const usuario = JSON.parse(localStorage.getItem("usuario"));
-      const res = await axios.get(`http://localhost:3000/api/reportes/garzon/${usuario.id}/${rangoFecha}`);
+      const res = await axios.get(`https://casa-verde-production.up.railway.app/api/reportes/garzon/${usuario.id}/${rangoFecha}`);
       const total = Number(res.data.total);
       const comision = total * 0.07;
       setStats({ ventasDia: total, ventasMes: total, comision, pagoPersonal: 0, totalFinal: total - comision });
@@ -50,7 +50,7 @@ export function ReportesGarzon() {
   const fetchDetalleGarzon = async () => {
     try {
       const usuario = JSON.parse(localStorage.getItem("usuario"));
-      const res = await axios.get(`http://localhost:3000/api/reportes/garzon-detalle/${usuario.id}/${rangoFecha}`);
+      const res = await axios.get(`https://casa-verde-production.up.railway.app/api/reportes/garzon-detalle/${usuario.id}/${rangoFecha}`);
       setDetallesGarzon(res.data);
     } catch (error) {
       console.error(error);
@@ -58,7 +58,7 @@ export function ReportesGarzon() {
   };
 
   const fetchDetallePersonal = async () => {
-    const res = await axios.get(`http://localhost:3000/api/reportes/chica/${personalSeleccionado}`);
+    const res = await axios.get(`https://casa-verde-production.up.railway.app/api/reportes/chica/${personalSeleccionado}`);
     setDetallesPersonal(res.data);
   };
 

@@ -10,7 +10,7 @@ import { Input } from './ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Download, TrendingUp, Package, Calendar, Sun } from 'lucide-react';
 
-const API = 'http://localhost:3000/api/reportes';
+const API = 'https://casa-verde-production.up.railway.app/api/reportes';
 
 const fmt = (n: any) =>
   Number(n).toLocaleString('es-BO', { minimumFractionDigits: 2, maximumFractionDigits: 2 });

@@ -61,7 +61,7 @@ export function GarzonesAdmin() {
   const cargar = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await axios.get('http://localhost:3000/api/usuarios', {
+      const res = await axios.get('https://casa-verde-production.up.railway.app/api/usuarios', {
         params: { search, page },
         headers,
       });
@@ -80,7 +80,7 @@ export function GarzonesAdmin() {
   // Verificar contraseña maestra contra el backend
   const verificarMaster = async (): Promise<boolean> => {
     try {
-      const res = await axios.post('http://localhost:3000/api/verify-master-password', {
+      const res = await axios.post('https://casa-verde-production.up.railway.app/api/verify-master-password', {
         admin_id: usuario.id,
         password: masterPassword,
       });
@@ -147,14 +147,14 @@ export function GarzonesAdmin() {
     try {
       if (pendingAction === 'guardar') {
         if (editando) {
-          await axios.put(`http://localhost:3000/api/usuarios/${editando.id}`, form, { headers });
+          await axios.put(`https://casa-verde-production.up.railway.app/api/usuarios/${editando.id}`, form, { headers });
           toast.success('Garzón actualizado');
         } else {
-          await axios.post('http://localhost:3000/api/usuarios', form, { headers });
+          await axios.post('https://casa-verde-production.up.railway.app/api/usuarios', form, { headers });
           toast.success('Garzón creado');
         }
       } else if (pendingAction === 'toggle' && pendingToggle) {
-        await axios.patch(`http://localhost:3000/api/usuarios/${pendingToggle.id}/toggle`, {}, { headers });
+        await axios.patch(`https://casa-verde-production.up.railway.app/api/usuarios/${pendingToggle.id}/toggle`, {}, { headers });
         toast.success(pendingToggle.activo ? 'Garzón desactivado' : 'Garzón reactivado');
       }
       setMasterOpen(false);

@@ -56,13 +56,13 @@ export function ServiciosExtras() {
   }, []);
 
   const cargarPersonal = async () => {
-    const res = await fetch("http://localhost:3000/api/personal");
+    const res = await fetch("https://casa-verde-production.up.railway.app/api/personal");
     const data = await res.json();
     setPersonal(data);
   };
 
   const cargarServiciosActivos = async () => {
-    const res = await fetch("http://localhost:3000/api/servicios-extras");
+    const res = await fetch("https://casa-verde-production.up.railway.app/api/servicios-extras");
     const data = await res.json();
 
     const formateados = data.map((s: any) => ({
@@ -115,7 +115,7 @@ export function ServiciosExtras() {
   const handleEliminarServicio = async (id: string) => {
     if (!window.confirm('¿Eliminar este servicio extra?')) return;
     try {
-      await fetch(`http://localhost:3000/api/servicios-extras/${id}`, { method: 'DELETE' });
+      await fetch(`https://casa-verde-production.up.railway.app/api/servicios-extras/${id}`, { method: 'DELETE' });
       await cargarServiciosActivos();
     } catch (error) {
       console.error(error);
@@ -146,8 +146,8 @@ export function ServiciosExtras() {
 
       const method = isEditing ? 'PUT' : 'POST';
       const url = isEditing
-        ? `http://localhost:3000/api/servicios-extras/${selectedServicio?.id}`
-        : 'http://localhost:3000/api/servicios-extras';
+        ? `https://casa-verde-production.up.railway.app/api/servicios-extras/${selectedServicio?.id}`
+        : 'https://casa-verde-production.up.railway.app/api/servicios-extras';
 
       await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
 

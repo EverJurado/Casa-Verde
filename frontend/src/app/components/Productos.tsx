@@ -39,7 +39,7 @@ export function Productos() {
 
   const cargarProductos = async () => {
     try {
-      const res = await fetch("http://localhost:3000/api/productos");
+      const res = await fetch("https://casa-verde-production.up.railway.app/api/productos");
       const data = await res.json();
       setProductos(data);
     } catch (error) {
@@ -74,7 +74,7 @@ const agregarStock = async (id: number) => {
       return;
     }
 
-    const res = await fetch(`http://localhost:3000/api/productos/${id}/stock`, {
+    const res = await fetch(`https://casa-verde-production.up.railway.app/api/productos/${id}/stock`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json"
@@ -108,7 +108,7 @@ const agregarStock = async (id: number) => {
 const crearProducto = async () => {
   try {
 
-    const res = await fetch("http://localhost:3000/api/productos", {
+    const res = await fetch("https://casa-verde-production.up.railway.app/api/productos", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"

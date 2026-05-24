@@ -62,7 +62,7 @@ export function JefaDashboard() {
       if (startDate) params.append('start_date', startDate.toISOString().split('T')[0]);
       if (endDate) params.append('end_date', endDate.toISOString().split('T')[0]);
 
-      const res = await axios.get(`http://localhost:3000/api/garzones/reportes?${params.toString()}`);
+      const res = await axios.get(`https://casa-verde-production.up.railway.app/api/garzones/reportes?${params.toString()}`);
       setVentasPorDia(res.data.ventasPorDia || MOCK_VENTAS_POR_DIA);
     } catch (error) {
       console.error('Error cargando ventas por día:', error);
@@ -76,7 +76,7 @@ export function JefaDashboard() {
       if (startDate) params.append('start_date', startDate.toISOString().split('T')[0]);
       if (endDate) params.append('end_date', endDate.toISOString().split('T')[0]);
 
-      const res = await axios.get(`http://localhost:3000/api/garzones/reportes?${params.toString()}`);
+      const res = await axios.get(`https://casa-verde-production.up.railway.app/api/garzones/reportes?${params.toString()}`);
       setVentasPorGarzon(res.data.ventasPorGarzon || MOCK_VENTAS_POR_GARZON);
     } catch (error) {
       console.error('Error cargando ventas por garzón:', error);
@@ -90,7 +90,7 @@ export function JefaDashboard() {
       if (startDate) params.append('start_date', startDate.toISOString().split('T')[0]);
       if (endDate) params.append('end_date', endDate.toISOString().split('T')[0]);
 
-      const res = await axios.get(`http://localhost:3000/api/garzones/reportes?${params.toString()}`);
+      const res = await axios.get(`https://casa-verde-production.up.railway.app/api/garzones/reportes?${params.toString()}`);
       setProductosMasVendidos(res.data.productosMasVendidos || []);
     } catch (error) {
       console.error('Error cargando productos:', error);
@@ -104,7 +104,7 @@ export function JefaDashboard() {
       if (startDate) params.append('start_date', startDate.toISOString().split('T')[0]);
       if (endDate) params.append('end_date', endDate.toISOString().split('T')[0]);
 
-      const res = await axios.get(`http://localhost:3000/api/garzones/reportes?${params.toString()}`);
+      const res = await axios.get(`https://casa-verde-production.up.railway.app/api/garzones/reportes?${params.toString()}`);
       setFichasPorChica(res.data.fichasPorPersonal || MOCK_FICHAS_POR_PERSONAL);
     } catch (error) {
       console.error('Error cargando fichas:', error);
@@ -114,7 +114,7 @@ export function JefaDashboard() {
 
   const fetchTotales = async () => {
     try {
-      const res = await axios.get('http://localhost:3000/api/garzones/reportes');
+      const res = await axios.get('https://casa-verde-production.up.railway.app/api/garzones/reportes');
       setTotales(res.data.totales || { ventas_mes: 0, pedidos: 0 });
     } catch (error) {
       console.error('Error cargando totales:', error);
@@ -127,7 +127,7 @@ export function JefaDashboard() {
   const fetchStatsGarzones = async () => {
     try {
       const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
-      const res = await axios.get('http://localhost:3000/api/usuarios/stats', {
+      const res = await axios.get('https://casa-verde-production.up.railway.app/api/usuarios/stats', {
         headers: { 'x-user-rol': usuario.rol === 'jefa' ? 'admin' : usuario.rol },
       });
       setStatsGarzones({ activos: Number(res.data.activos), inactivos: Number(res.data.inactivos) });
