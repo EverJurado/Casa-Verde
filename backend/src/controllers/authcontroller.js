@@ -27,11 +27,17 @@ export const login = async (req, res) => {
       success: true,
       user: {
         id: user.id,
-        nombre: user.nombre + (user.apellidos ? " " + user.apellidos : ""),
+        nombre:
+          user.nombre +
+          " " +
+          (user.apellido_paterno || "") +
+          " " +
+          (user.apellido_materno || ""),
         rol: user.rol === "admin" ? "jefa" : "garzon",
         force_password_change: user.force_password_change,
       },
     });
+
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Error del servidor" });
