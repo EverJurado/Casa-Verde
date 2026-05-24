@@ -35,9 +35,10 @@ export function NuevaOrden({ open, onClose, onSave }: NuevaOrdenProps) {
     const fetchProductos = async () => {
       try {
         const res = await axios.get('https://casa-verde-production.up.railway.app/api/productos');
-        setProductos(res.data);
+        setProductos(Array.isArray(res.data) ? res.data : []);
       } catch (error) {
         console.error('Error al cargar productos:', error);
+        setProductos([]);
       }
     };
     fetchProductos();
@@ -47,9 +48,10 @@ export function NuevaOrden({ open, onClose, onSave }: NuevaOrdenProps) {
     const fetchPersonal = async () => {
       try {
         const res = await axios.get('https://casa-verde-production.up.railway.app/api/personal');
-        setPersonal(res.data);
+        setPersonal(Array.isArray(res.data) ? res.data : []);
       } catch (error) {
         console.error('Error al cargar personal:', error);
+        setPersonal([]);
       }
     };
     fetchPersonal();

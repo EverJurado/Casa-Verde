@@ -102,10 +102,10 @@ export const getPersonal = async (req, res) => {
       WHERE activo = true
       ORDER BY nombre_artistico
     `);
-    res.json(result.rows);
+    res.json(result.rows || []);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Error al obtener personal" });
+    res.status(500).json([]);
   }
 };
 

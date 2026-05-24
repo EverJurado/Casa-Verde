@@ -31,8 +31,13 @@ export function ReportesGarzon() {
   }, [personalSeleccionado]);
 
   const fetchPersonal = async () => {
-    const res = await axios.get("https://casa-verde-production.up.railway.app/api/reportes/chicas");
-    setPersonal(res.data);
+    try {
+      const res = await axios.get("https://casa-verde-production.up.railway.app/api/reportes/chicas");
+      setPersonal(Array.isArray(res.data) ? res.data : []);
+    } catch (error) {
+      console.error("Error cargando personal:", error);
+      setPersonal([]);
+    }
   };
 
   const fetchStats = async () => {
@@ -51,14 +56,20 @@ export function ReportesGarzon() {
     try {
       const usuario = JSON.parse(localStorage.getItem("usuario"));
       const res = await axios.get(`https://casa-verde-production.up.railway.app/api/reportes/garzon-detalle/${usuario.id}/${rangoFecha}`);
-      setDetallesGarzon(res.data);
+      setDetallesGarzon(Array.isArray(res.data) ? res.data : []);
     } catch (error) {
       console.error(error);
+      setDetallesGarzon([]);
     }
   };
 
-  const fetchDetallePersonal = async () => {
-    const res = await axios.get(`https://casa-verde-production.up.railway.app/api/reportes/chica/${personalSeleccionado}`);
+  cotry {
+      const res = await axios.get(`https://casa-verde-production.up.railway.app/api/reportes/chica/${personalSeleccionado}`);
+      setDetallesPersonal(Array.isArray(res.data) ? res.data : []);
+    } catch (error) {
+      console.error("Error cargando detalles personal:", error);
+      setDetallesPersonal([]);
+    }ttps://casa-verde-production.up.railway.app/api/reportes/chica/${personalSeleccionado}`);
     setDetallesPersonal(res.data);
   };
 

@@ -18,11 +18,11 @@ export const obtenerProductos = async (req, res) => {
       ORDER BY nombre
     `);
 
-    res.json(result.rows);
+    res.json(result.rows || []);
 
   } catch (error) {
     console.log(error);
-    res.status(500).json({ error: error.message });
+    res.status(500).json([]);
   }
 };
 

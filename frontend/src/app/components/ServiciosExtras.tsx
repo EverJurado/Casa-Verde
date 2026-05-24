@@ -56,9 +56,14 @@ export function ServiciosExtras() {
   }, []);
 
   const cargarPersonal = async () => {
-    const res = await fetch("https://casa-verde-production.up.railway.app/api/personal");
-    const data = await res.json();
-    setPersonal(data);
+    try {
+      const res = await fetch("https://casa-verde-production.up.railway.app/api/personal");
+      const data = await res.json();
+      setPersonal(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error("Error al cargar personal:", error);
+      setPersonal([]);
+    }
   };
 
   const cargarServiciosActivos = async () => {

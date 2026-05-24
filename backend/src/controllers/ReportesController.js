@@ -8,10 +8,10 @@ export const getChicas = async (req, res) => {
       WHERE activo = true
       ORDER BY nombre_artistico
     `);
-    res.json(result.rows);
+    res.json(result.rows || []);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Error obteniendo personal" });
+    res.status(500).json([]);
   }
 };
 
@@ -87,10 +87,10 @@ export const getDetalleGarzon = async (req, res) => {
       WHERE p.garzon_id = $1
       ORDER BY p.fecha DESC
     `, [id]);
-    res.json(result.rows);
+    res.json(result.rows || []);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "error detalle garzon" });
+    res.status(500).json([]);
   }
 };
 
@@ -116,10 +116,10 @@ export const getReporteChica = async (req, res) => {
       WHERE pp.personal_id = $1
       ORDER BY p.fecha DESC
     `, [id]);
-    res.json(result.rows);
+    res.json(result.rows || []);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "error reporte personal" });
+    res.status(500).json([]);
   }
 };
 

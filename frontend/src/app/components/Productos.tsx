@@ -41,9 +41,10 @@ export function Productos() {
     try {
       const res = await fetch("https://casa-verde-production.up.railway.app/api/productos");
       const data = await res.json();
-      setProductos(data);
+      setProductos(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error(error);
+      setProductos([]);
     }
   };
 

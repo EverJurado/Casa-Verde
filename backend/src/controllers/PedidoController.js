@@ -148,7 +148,7 @@ export const obtenerOrdenesAbiertas = async (req, res) => {
     res.json(pedidosConDetalles);
   } catch (error) {
     console.log(error);
-    res.status(500).json({ error: error.message });
+    res.status(500).json([]);
   } finally {
     client.release();
   }

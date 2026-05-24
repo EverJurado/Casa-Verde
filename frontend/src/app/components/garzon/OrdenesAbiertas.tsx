@@ -28,10 +28,12 @@ export function OrdenesAbiertas({ refreshKey, onAction }: OrdenesAbiertasProps) 
           axios.get("https://casa-verde-production.up.railway.app/api/personal/"),
         ]);
 
-        setOrdenes(resOrdenes.data);
-        setPersonalDisponible(resPersonal.data);
+        setOrdenes(Array.isArray(resOrdenes.data) ? resOrdenes.data : []);
+        setPersonalDisponible(Array.isArray(resPersonal.data) ? resPersonal.data : []);
       } catch (err) {
         console.error('Error cargando datos', err);
+        setOrdenes([]);
+        setPersonalDisponible([]);
       } finally {
         setLoading(false);
       }

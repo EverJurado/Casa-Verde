@@ -31,9 +31,10 @@ export function ChicasView() {
   const fetchAllPersonal = async () => {
     try {
       const res = await axios.get("https://casa-verde-production.up.railway.app/api/personal/");
-      setAllPersonal(res.data);
+      setAllPersonal(Array.isArray(res.data) ? res.data : []);
     } catch (error) {
       console.error("Error al cargar personal:", error);
+      setAllPersonal([]);
     }
   };
 
