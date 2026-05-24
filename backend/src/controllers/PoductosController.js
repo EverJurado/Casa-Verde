@@ -135,11 +135,10 @@ export const crearProducto = async (req, res) => {
         nombre,
         precio,
         categoria,
-        activo,
         stock_botellas,
         stock_medias
       )
-      VALUES ($1,$2,$3,true,$4,$5)
+      VALUES ($1,$2,$3,$4,$5)
       RETURNING *
     `, [
       nombre,
