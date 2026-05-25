@@ -42,33 +42,113 @@ import {
 export function ReportesGarzon() {
 
   const [personalSeleccionado, setPersonalSeleccionado] = useState('');
+
   const [rangoFecha, setRangoFecha] = useState('dia');
 
   const [personal, setPersonal] = useState<any[]>([]);
+
   const [detallesPersonal, setDetallesPersonal] = useState<any[]>([]);
+
   const [detallesGarzon, setDetallesGarzon] = useState<any[]>([]);
 
   const [stats, setStats] = useState<any>({
     ventasDia: 0,
     ventasMes: 0,
-    comision: 0
+    comision: 0,
+    pagoPersonal: 0,
+    totalFinal: 0
   });
 
+  // =========================
+  // FETCH GENERICO
+  // =========================
+
+  const obtenerDatos = async (
+    url: string,
+    setter: Function
+  ) => {
+    try {
+
+      const res = await axios.get(url);
+
+      setter(
+        Array.isArray(res.data)
+          ? res.data
+          : []
+      );
+
+    } catch (error) {
+
+      console.error(error);
+
+      setter([]);
+
+    }
+  };
+
+  // =========================
+  // AGRUPADOR GENERICO
+  // =========================
+
+  const agruparPorFechaYTurno = (
+    datos: any[]
+  ) => {
+
+    const grupos: any = {};
+
+    datos.forEach((d) => {
+
+      const fecha = new Date(d.fecha);
+
+      const dia = String(
+        fecha.getDate()
+      ).padStart(2, "0");
+
+      const mes = String(
+        fecha.getMonth() + 1
+      ).padStart(2, "0");
+
+      const key = `${dia}/${mes} ${d.turno}`;
+
+      if (!grupos[key]) {
+        grupos[key] = [];
+      }
+
+      grupos[key].push(d);
+
+    });
+
+    return grupos;
+  };
+
+  // =========================
+  // USE EFFECTS
+  // =========================
+
   useEffect(() => {
+
     fetchPersonal();
+
     fetchStats();
+
     fetchDetalleGarzon();
+
   }, []);
 
   useEffect(() => {
+
     fetchStats();
+
     fetchDetalleGarzon();
+
   }, [rangoFecha]);
 
   useEffect(() => {
+
     if (personalSeleccionado) {
       fetchDetallePersonal();
     }
+
   }, [personalSeleccionado]);
 
   // =========================
@@ -76,20 +156,12 @@ export function ReportesGarzon() {
   // =========================
 
   const fetchPersonal = async () => {
-    try {
 
-      const res = await axios.get(
-        "https://casa-verde-production.up.railway.app/api/reportes/chicas"
-      );
+    await obtenerDatos(
+      "https://casa-verde-production.up.railway.app/api/reportes/chicas",
+      setPersonal
+    );
 
-      setPersonal(Array.isArray(res.data) ? res.data : []);
-
-    } catch (error) {
-
-      console.error("Error cargando personal:", error);
-
-      setPersonal([]);
-    }
   };
 
   // =========================
@@ -97,6 +169,7 @@ export function ReportesGarzon() {
   // =========================
 
   const fetchStats = async () => {
+
     try {
 
       const usuario = JSON.parse(
@@ -108,6 +181,7 @@ export function ReportesGarzon() {
       );
 
       const total = Number(res.data.total);
+
       const comision = total * 0.07;
 
       setStats({
@@ -120,7 +194,11 @@ export function ReportesGarzon() {
 
     } catch (error) {
 
-      console.error("Error cargando estadísticas:", error);
+      console.error(
+        "Error cargando estadísticas:",
+        error
+      );
+
     }
   };
 
@@ -129,26 +207,16 @@ export function ReportesGarzon() {
   // =========================
 
   const fetchDetalleGarzon = async () => {
-    try {
 
-      const usuario = JSON.parse(
-        localStorage.getItem("usuario") || "{}"
-      );
+    const usuario = JSON.parse(
+      localStorage.getItem("usuario") || "{}"
+    );
 
-      const res = await axios.get(
-        `https://casa-verde-production.up.railway.app/api/reportes/garzon-detalle/${usuario.id}/${rangoFecha}`
-      );
+    await obtenerDatos(
+      `https://casa-verde-production.up.railway.app/api/reportes/garzon-detalle/${usuario.id}/${rangoFecha}`,
+      setDetallesGarzon
+    );
 
-      setDetallesGarzon(
-        Array.isArray(res.data) ? res.data : []
-      );
-
-    } catch (error) {
-
-      console.error(error);
-
-      setDetallesGarzon([]);
-    }
   };
 
   // =========================
@@ -156,25 +224,12 @@ export function ReportesGarzon() {
   // =========================
 
   const fetchDetallePersonal = async () => {
-    try {
 
-      const res = await axios.get(
-        `https://casa-verde-production.up.railway.app/api/reportes/chica/${personalSeleccionado}`
-      );
+    await obtenerDatos(
+      `https://casa-verde-production.up.railway.app/api/reportes/chica/${personalSeleccionado}`,
+      setDetallesPersonal
+    );
 
-      setDetallesPersonal(
-        Array.isArray(res.data) ? res.data : []
-      );
-
-    } catch (error) {
-
-      console.error(
-        "Error cargando detalles personal:",
-        error
-      );
-
-      setDetallesPersonal([]);
-    }
   };
 
   // =========================
@@ -190,6 +245,7 @@ export function ReportesGarzon() {
       comision: stats.comision,
       detalles: detallesGarzon,
     });
+
   };
 
   // =========================
@@ -211,74 +267,18 @@ export function ReportesGarzon() {
         0
       ),
     });
+
   };
 
   // =========================
-  // AGRUPAR GARZON
+  // DATOS AGRUPADOS
   // =========================
 
-  const agruparGarzon = () => {
+  const datosGarzonAgrupados =
+    agruparPorFechaYTurno(detallesGarzon);
 
-    const grupos: any = {};
-
-    detallesGarzon.forEach((d) => {
-
-      const fecha = new Date(d.fecha);
-
-      const dia = String(
-        fecha.getDate()
-      ).padStart(2, "0");
-
-      const mes = String(
-        fecha.getMonth() + 1
-      ).padStart(2, "0");
-
-      const key = `${dia}/${mes} ${d.turno}`;
-
-      if (!grupos[key]) {
-        grupos[key] = [];
-      }
-
-      grupos[key].push(d);
-    });
-
-    return grupos;
-  };
-
-  // =========================
-  // AGRUPAR PERSONAL
-  // =========================
-
-  const agruparPorFechaTurno = () => {
-
-    const grupos: any = {};
-
-    detallesPersonal.forEach((d) => {
-
-      const fecha = new Date(d.fecha);
-
-      const dia = String(
-        fecha.getDate()
-      ).padStart(2, "0");
-
-      const mes = String(
-        fecha.getMonth() + 1
-      ).padStart(2, "0");
-
-      const key = `${dia}/${mes} ${d.turno}`;
-
-      if (!grupos[key]) {
-        grupos[key] = [];
-      }
-
-      grupos[key].push(d);
-    });
-
-    return grupos;
-  };
-
-  const datosGarzonAgrupados = agruparGarzon();
-  const datosAgrupados = agruparPorFechaTurno();
+  const datosAgrupados =
+    agruparPorFechaYTurno(detallesPersonal);
 
   return (
 
@@ -288,6 +288,7 @@ export function ReportesGarzon() {
     >
 
       <TabsList>
+
         <TabsTrigger value="garzon">
           Reporte del Garzón
         </TabsTrigger>
@@ -295,6 +296,7 @@ export function ReportesGarzon() {
         <TabsTrigger value="personal">
           Reporte por Personal
         </TabsTrigger>
+
       </TabsList>
 
       {/* ========================= */}
@@ -342,6 +344,7 @@ export function ReportesGarzon() {
             </div>
 
           </CardContent>
+
         </Card>
 
         {Object.entries(
@@ -395,6 +398,7 @@ export function ReportesGarzon() {
                     </TableCell>
 
                   </TableRow>
+
                 ))}
 
               </TableBody>
@@ -402,6 +406,7 @@ export function ReportesGarzon() {
             </Table>
 
           </div>
+
         ))}
 
       </TabsContent>
@@ -415,9 +420,11 @@ export function ReportesGarzon() {
         <Card>
 
           <CardHeader>
+
             <CardTitle>
               Reporte por Personal
             </CardTitle>
+
           </CardHeader>
 
           <CardContent>
@@ -451,6 +458,13 @@ export function ReportesGarzon() {
               </Select>
 
             </div>
+
+            <Button
+              className="mb-4"
+              onClick={handleDescargarPDFPersonal}
+            >
+              Descargar PDF
+            </Button>
 
             {Object.entries(
               datosAgrupados
@@ -503,6 +517,7 @@ export function ReportesGarzon() {
                         </TableCell>
 
                       </TableRow>
+
                     ))}
 
                   </TableBody>
@@ -510,13 +525,8 @@ export function ReportesGarzon() {
                 </Table>
 
               </div>
-            ))}
 
-            <Button
-              onClick={handleDescargarPDFPersonal}
-            >
-              Descargar PDF
-            </Button>
+            ))}
 
           </CardContent>
 
