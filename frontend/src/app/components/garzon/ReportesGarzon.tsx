@@ -63,7 +63,7 @@ export function ReportesGarzon() {
     }
   };
 
-  cotry {
+  try {
       const res = await axios.get(`https://casa-verde-production.up.railway.app/api/reportes/chica/${personalSeleccionado}`);
       setDetallesPersonal(Array.isArray(res.data) ? res.data : []);
     } catch (error) {
