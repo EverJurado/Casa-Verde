@@ -47,7 +47,7 @@ export function ModalAsignacion({ open, onClose, item, onGuardar, personal }: Mo
 
     const nombre = item.productoNombre?.toLowerCase() || '';
     const esCerveza = nombre.includes('cerveza') || nombre.includes('vaso');
-    const pagoUnitario = esCerveza ? 15 : 150;
+    const pagoUnitario = esCerveza ? 50 : 150;
     const gananciaBase = pagoUnitario * fraccion * cantidad;
     const porcentajePorPersona = 100 / personalSeleccionado.length;
     const montoPorPersona = gananciaBase / personalSeleccionado.length;
@@ -69,7 +69,7 @@ export function ModalAsignacion({ open, onClose, item, onGuardar, personal }: Mo
     const precioFinal = item.precio * fraccion;
     const nombre = item.productoNombre?.toLowerCase() || '';
     const esCerveza = nombre.includes('cerveza') || nombre.includes('vaso');
-    const pagoUnitario = esCerveza ? 15 : 150;
+    const pagoUnitario = esCerveza ? 50 : 150;
     const gananciaBase = pagoUnitario * fraccion * cantidad;
 
     const itemCompleto: ItemOrden = {

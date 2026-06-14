@@ -7,7 +7,15 @@ import { Badge } from "../ui/badge";
 import { ScrollArea } from "../ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 
-const MONTO_FIJO_TOTAL = 150;
+const obtenerMontoBase = (productoNombre: string) => {
+  const nombre = productoNombre.toLowerCase();
+
+  if (nombre.includes('cerveza') || nombre.includes('vaso')) {
+    return 50;
+  }
+
+  return 150;
+};
 
 interface EditarOrdenProps {
   open: boolean;
@@ -29,13 +37,14 @@ export function EditarOrden({ open, orden, personalDisponible, onClose, onSaved,
         id: item.id || item.producto_id,
         producto_nombre: item.producto_nombre || item.productoNombre || "Producto",
         personal: (item.personal || item.chicas || []).map((p: any) => {
-          const montoActual = Number(p.monto) || MONTO_FIJO_TOTAL / (item.personal?.length || item.chicas?.length || 1);
+          const montoBase = obtenerMontoBase(item.producto_nombre || item.productoNombre || "");
+          const montoActual = Number(p.monto) || montoBase / (item.personal?.length || item.chicas?.length || 1);
           return {
             ...p,
             personal_id: p.personal_id || p.chica_id || p.id,
             personal_nombre: p.personal_nombre || p.chica_nombre || p.nombre_artistico || p.nombre || "Sin Nombre",
             monto: montoActual,
-            porcentaje: (montoActual / MONTO_FIJO_TOTAL) * 100,
+            porcentaje: (montoActual / montoBase) * 100,
           };
         }),
       }));
@@ -47,9 +56,10 @@ export function EditarOrden({ open, orden, personalDisponible, onClose, onSaved,
     setCarrito((prev) =>
       prev.map((item) => {
         if (item.id !== itemId) return item;
+        const montoBase = obtenerMontoBase(item.producto_nombre || item.productoNombre || "");
         const nuevosPersonal = item.personal.map((p: any) => {
           if (p.personal_id === personalId || p.id === personalId) {
-            return { ...p, monto: nuevoMonto, porcentaje: (nuevoMonto / MONTO_FIJO_TOTAL) * 100 };
+            return { ...p, monto: nuevoMonto, porcentaje: (nuevoMonto / montoBase) * 100 };
           }
           return p;
         });
@@ -82,16 +92,18 @@ export function EditarOrden({ open, orden, personalDisponible, onClose, onSaved,
         const yaExiste = item.personal.some((p: any) => p.personal_id === pSeleccionado.id);
         if (yaExiste) return item;
 
+        const montoBase = obtenerMontoBase(item.producto_nombre || item.productoNombre || "");
+
         const nuevosPersonal = [
           ...item.personal,
           { personal_id: pSeleccionado.id, personal_nombre: pSeleccionado.nombre_artistico, monto: 0, porcentaje: 0 },
         ];
 
-        const montoPorPersona = MONTO_FIJO_TOTAL / nuevosPersonal.length;
+        const montoPorPersona = montoBase / nuevosPersonal.length;
         const recalculados = nuevosPersonal.map((p: any) => ({
           ...p,
           monto: montoPorPersona,
-          porcentaje: (montoPorPersona / MONTO_FIJO_TOTAL) * 100,
+          porcentaje: (montoPorPersona / montoBase) * 100,
         }));
 
         return { ...item, personal: recalculados };
@@ -117,17 +129,19 @@ export function EditarOrden({ open, orden, personalDisponible, onClose, onSaved,
       const nuevoCarrito = prev.map((item) => {
         if (item.id !== itemId) return item;
 
+        const montoBase = obtenerMontoBase(item.producto_nombre || item.productoNombre || "");
+
         const restantes = item.personal.filter(
           (p: any) => p.personal_id !== personalId && p.id !== personalId
         );
 
         if (restantes.length === 0) return item;
 
-        const montoPorPersona = MONTO_FIJO_TOTAL / restantes.length;
+        const montoPorPersona = montoBase / restantes.length;
         const recalculados = restantes.map((p: any) => ({
           ...p,
           monto: montoPorPersona,
-          porcentaje: (montoPorPersona / MONTO_FIJO_TOTAL) * 100,
+          porcentaje: (montoPorPersona / montoBase) * 100,
         }));
 
         return { ...item, personal: recalculados };

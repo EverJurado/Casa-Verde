@@ -18,17 +18,23 @@ export const getChicas = async (req, res) => {
 export const getReporteGarzon = async (req, res) => {
   try {
     const { id, turno } = req.params;
+    const nowLocal = `timezone('America/La_Paz', now())`;
+    const fechaPedidos = `(fecha AT TIME ZONE 'UTC' AT TIME ZONE 'America/La_Paz')`;
+    const fechaPedidosP = `(p.fecha AT TIME ZONE 'UTC' AT TIME ZONE 'America/La_Paz')`;
 
-    const condicion =
+    const crearCondicionTurno = (fechaExpr) =>
       turno === "dia"
-        ? `fecha >= date_trunc('day', now()) + interval '8 hour'
-           AND fecha <  date_trunc('day', now()) + interval '20 hour'`
-        : `fecha >= date_trunc('day', now()) + interval '20 hour'
-           AND fecha <  date_trunc('day', now()) + interval '1 day 8 hour'`;
+        ? `${fechaExpr} >= date_trunc('day', ${nowLocal}) + interval '8 hour'
+           AND ${fechaExpr} <  date_trunc('day', ${nowLocal}) + interval '20 hour'`
+        : `${fechaExpr} >= date_trunc('day', ${nowLocal}) + interval '20 hour'
+           AND ${fechaExpr} <  date_trunc('day', ${nowLocal}) + interval '1 day 8 hour'`;
+
+    const condicionPedidos = crearCondicionTurno(fechaPedidos);
+    const condicionPedidosP = crearCondicionTurno(fechaPedidosP);
 
     const [ventas, personal, servicios] = await Promise.all([
       pool.query(
-        `SELECT COALESCE(SUM(total),0) as total FROM pedidos WHERE garzon_id = $1 AND ${condicion}`,
+        `SELECT COALESCE(SUM(total),0) as total FROM pedidos WHERE garzon_id = $1 AND ${condicionPedidos}`,
         [id]
       ),
       pool.query(
@@ -36,12 +42,12 @@ export const getReporteGarzon = async (req, res) => {
          FROM pedidos p
          JOIN pedido_detalle pd ON pd.pedido_id = p.id
          JOIN pedido_personal pp ON pp.pedido_detalle_id = pd.id
-         WHERE p.garzon_id = $1 AND ${condicion.replace(/fecha/g, "p.fecha")}`,
+         WHERE p.garzon_id = $1 AND ${condicionPedidosP}`,
         [id]
       ),
       pool.query(
         `SELECT COALESCE(SUM(monto_personal),0) as total
-         FROM servicios_extras WHERE garzon_id = $1 AND ${condicion}`,
+         FROM servicios_extras WHERE garzon_id = $1 AND ${condicionPedidos}`,
         [id]
       ),
     ]);
@@ -76,10 +82,11 @@ export const getDetalleGarzon = async (req, res) => {
         pd.cantidad,
         pd.fraccion,
         pd.precio,
-        p.fecha,
-        TO_CHAR(p.fecha, 'HH24:MI') as hora,
+        (p.fecha AT TIME ZONE 'UTC' AT TIME ZONE 'America/La_Paz') as fecha,
+        TO_CHAR((p.fecha AT TIME ZONE 'UTC' AT TIME ZONE 'America/La_Paz'), 'HH24:MI') as hora,
         CASE
-          WHEN EXTRACT(HOUR FROM p.fecha) >= 20 OR EXTRACT(HOUR FROM p.fecha) < 7 THEN 'noche'
+          WHEN EXTRACT(HOUR FROM (p.fecha AT TIME ZONE 'UTC' AT TIME ZONE 'America/La_Paz')) >= 20
+            OR EXTRACT(HOUR FROM (p.fecha AT TIME ZONE 'UTC' AT TIME ZONE 'America/La_Paz')) < 7 THEN 'noche'
           ELSE 'dia'
         END as turno
       FROM pedidos p
@@ -103,10 +110,11 @@ export const getReporteChica = async (req, res) => {
         pd.producto_nombre as producto,
         pd.cantidad,
         pd.fraccion,
-        p.fecha,
-        TO_CHAR(p.fecha, 'HH24:MI') as hora,
+        (p.fecha AT TIME ZONE 'UTC' AT TIME ZONE 'America/La_Paz') as fecha,
+        TO_CHAR((p.fecha AT TIME ZONE 'UTC' AT TIME ZONE 'America/La_Paz'), 'HH24:MI') as hora,
         CASE
-          WHEN EXTRACT(HOUR FROM p.fecha) >= 20 OR EXTRACT(HOUR FROM p.fecha) < 7 THEN 'noche'
+          WHEN EXTRACT(HOUR FROM (p.fecha AT TIME ZONE 'UTC' AT TIME ZONE 'America/La_Paz')) >= 20
+            OR EXTRACT(HOUR FROM (p.fecha AT TIME ZONE 'UTC' AT TIME ZONE 'America/La_Paz')) < 7 THEN 'noche'
           ELSE 'dia'
         END as turno,
         pp.monto as ganancia

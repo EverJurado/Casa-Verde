@@ -5,6 +5,16 @@ export const crearPedido = async (req, res) => {
   const { garzon_id, total, items } = req.body;
   const client = await pool.connect();
 
+  const obtenerMontoBase = (productoNombre = '') => {
+    const nombre = productoNombre.toLowerCase();
+
+    if (nombre.includes('cerveza') || nombre.includes('vaso')) {
+      return 50;
+    }
+
+    return 150;
+  };
+
   try {
     await client.query("BEGIN");
 
@@ -59,12 +69,7 @@ export const crearPedido = async (req, res) => {
       const personalItems = item.personal || item.chicas || [];
 
       if (personalItems.length > 0) {
-        const nombreProd = item.productoNombre.toLowerCase();
-        let montoBase = 150;
-        if (nombreProd.includes("cerveza") || nombreProd.includes("base") || nombreProd.includes("vaso")) {
-          montoBase = 15;
-        }
-
+        const montoBase = obtenerMontoBase(item.productoNombre);
         const montoTotal = montoBase * item.fraccion * item.cantidad;
         const cantidad = personalItems.length;
         const montoPorPersona = montoTotal / cantidad;
