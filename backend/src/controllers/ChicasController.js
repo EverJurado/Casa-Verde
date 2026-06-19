@@ -21,6 +21,7 @@ export const getDetalleChicaPorNombre = async (req, res) => {
 
     const detalleBotellas = botellas.map((row) => {
       const fraccion = Number(row.fraccion) || 1;
+      const cantidad = Number(row.cantidad) || 1;
       return {
         concepto:
           fraccion === 0.5
@@ -28,7 +29,7 @@ export const getDetalleChicaPorNombre = async (req, res) => {
             : fraccion > 1
               ? `${row.producto_nombre} (${fraccion})`
               : row.producto_nombre,
-        cantidad: fraccion === 0.5 ? "1/2" : Number(row.cantidad) || 1,
+        cantidad: fraccion === 0.5 && cantidad > 1 ? `${cantidad} x 1/2` : fraccion === 0.5 ? "1/2" : cantidad,
         fraccion,
         participantes: Number(row.participantes) || 1,
         monto: Number(row.monto),

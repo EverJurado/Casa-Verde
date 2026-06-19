@@ -2,6 +2,7 @@ export interface ItemOrden {
   id: string;
   productoId: string;
   productoNombre: string;
+  productoCategoria?: string;
   cantidad: number;
   precio: number;
   modo: 'Bar' | 'Acompañado';

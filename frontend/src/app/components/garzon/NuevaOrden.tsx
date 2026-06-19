@@ -76,6 +76,7 @@ export function NuevaOrden({ open, onClose, onSave }: NuevaOrdenProps) {
     setItemEnEdicion({
       productoId: producto.id,
       productoNombre: producto.nombre,
+      productoCategoria: producto.categoria,
       cantidad: 1,
       precio: producto.precio,
     });

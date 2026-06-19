@@ -10,11 +10,20 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 const obtenerMontoBase = (productoNombre: string) => {
   const nombre = productoNombre.toLowerCase();
 
-  if (nombre.includes('cerveza') || nombre.includes('vaso')) {
+  if (nombre.includes('vaso')) {
+    return 15;
+  }
+
+  if (nombre.includes('cerveza')) {
     return 50;
   }
 
   return 150;
+};
+
+const obtenerMontoTotalItem = (item: any) => {
+  const montoBase = obtenerMontoBase(item.producto_nombre || item.productoNombre || "");
+  return montoBase * (Number(item.fraccion) || 1) * (Number(item.cantidad) || 1);
 };
 
 interface EditarOrdenProps {
@@ -37,7 +46,7 @@ export function EditarOrden({ open, orden, personalDisponible, onClose, onSaved,
         id: item.id || item.producto_id,
         producto_nombre: item.producto_nombre || item.productoNombre || "Producto",
         personal: (item.personal || item.chicas || []).map((p: any) => {
-          const montoBase = obtenerMontoBase(item.producto_nombre || item.productoNombre || "");
+          const montoBase = obtenerMontoTotalItem(item);
           const montoActual = Number(p.monto) || montoBase / (item.personal?.length || item.chicas?.length || 1);
           return {
             ...p,
@@ -56,7 +65,7 @@ export function EditarOrden({ open, orden, personalDisponible, onClose, onSaved,
     setCarrito((prev) =>
       prev.map((item) => {
         if (item.id !== itemId) return item;
-        const montoBase = obtenerMontoBase(item.producto_nombre || item.productoNombre || "");
+        const montoBase = obtenerMontoTotalItem(item);
         const nuevosPersonal = item.personal.map((p: any) => {
           if (p.personal_id === personalId || p.id === personalId) {
             return { ...p, monto: nuevoMonto, porcentaje: (nuevoMonto / montoBase) * 100 };
@@ -92,7 +101,7 @@ export function EditarOrden({ open, orden, personalDisponible, onClose, onSaved,
         const yaExiste = item.personal.some((p: any) => p.personal_id === pSeleccionado.id);
         if (yaExiste) return item;
 
-        const montoBase = obtenerMontoBase(item.producto_nombre || item.productoNombre || "");
+        const montoBase = obtenerMontoTotalItem(item);
 
         const nuevosPersonal = [
           ...item.personal,
@@ -129,7 +138,7 @@ export function EditarOrden({ open, orden, personalDisponible, onClose, onSaved,
       const nuevoCarrito = prev.map((item) => {
         if (item.id !== itemId) return item;
 
-        const montoBase = obtenerMontoBase(item.producto_nombre || item.productoNombre || "");
+        const montoBase = obtenerMontoTotalItem(item);
 
         const restantes = item.personal.filter(
           (p: any) => p.personal_id !== personalId && p.id !== personalId

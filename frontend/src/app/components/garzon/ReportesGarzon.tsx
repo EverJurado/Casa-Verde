@@ -280,6 +280,17 @@ export function ReportesGarzon() {
   const datosAgrupados =
     agruparPorFechaYTurno(detallesPersonal);
 
+  const formatearCantidad = (detalle: any) => {
+    const cantidad = Number(detalle.cantidad) || 1;
+    const fraccion = Number(detalle.fraccion) || 1;
+
+    if (fraccion === 0.5) {
+      return cantidad > 1 ? `${cantidad} x 1/2` : '1/2';
+    }
+
+    return cantidad;
+  };
+
   return (
 
     <Tabs
@@ -388,9 +399,7 @@ export function ReportesGarzon() {
                     </TableCell>
 
                     <TableCell>
-                      {d.fraccion === 0.5
-                        ? "1/2"
-                        : d.cantidad}
+                      {formatearCantidad(d)}
                     </TableCell>
 
                     <TableCell>
@@ -507,9 +516,7 @@ export function ReportesGarzon() {
                         </TableCell>
 
                         <TableCell>
-                          {d.fraccion === 0.5
-                            ? "1/2"
-                            : d.cantidad}
+                          {formatearCantidad(d)}
                         </TableCell>
 
                         <TableCell>

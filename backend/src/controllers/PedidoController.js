@@ -5,10 +5,15 @@ export const crearPedido = async (req, res) => {
   const { garzon_id, total, items } = req.body;
   const client = await pool.connect();
 
-  const obtenerMontoBase = (productoNombre = '') => {
+  const obtenerMontoBase = (productoNombre = '', productoCategoria = '') => {
     const nombre = productoNombre.toLowerCase();
+    const categoria = productoCategoria.toLowerCase();
 
-    if (nombre.includes('cerveza') || nombre.includes('vaso')) {
+    if (categoria === 'vaso' || nombre.includes('vaso')) {
+      return 15;
+    }
+
+    if (categoria === 'cerveza' || nombre.includes('cerveza')) {
       return 50;
     }
 
@@ -31,21 +36,34 @@ export const crearPedido = async (req, res) => {
 
     for (const item of items) {
       const productoRes = await client.query(
-        `SELECT stock_botellas FROM productos WHERE id = $1`,
+        `SELECT stock_botellas, stock_medias, categoria FROM productos WHERE id = $1`,
         [item.productoId]
       );
 
-      const stockActual = parseFloat(productoRes.rows[0].stock_botellas);
-      const cantidadNecesaria = item.fraccion === 0.5 ? item.cantidad * 0.5 : item.cantidad;
+      if (productoRes.rows.length === 0) {
+        throw new Error(`El producto ${item.productoNombre} no existe`);
+      }
+
+      const productoCategoria = item.productoCategoria || productoRes.rows[0].categoria || '';
+      const cantidadItem = Number(item.cantidad) || 1;
+      const fraccionItem = Number(item.fraccion) || 1;
+      const stockBotellas = parseFloat(productoRes.rows[0].stock_botellas);
+      const stockMedias = parseFloat(productoRes.rows[0].stock_medias);
+      const stockActual = fraccionItem === 0.5
+        ? stockBotellas + (stockMedias * 0.5)
+        : stockBotellas;
+      const cantidadNecesaria = fraccionItem === 0.5 ? cantidadItem * 0.5 : cantidadItem;
 
       if (stockActual < cantidadNecesaria) {
         throw new Error(`No hay stock suficiente para ${item.productoNombre}`);
       }
 
-      if (item.fraccion === 0.5) {
-        await venderMedia(item.productoId, client);
-      } else {
-        await venderBotella(item.productoId, client);
+      for (let i = 0; i < cantidadItem; i++) {
+        if (fraccionItem === 0.5) {
+          await venderMedia(item.productoId, client);
+        } else {
+          await venderBotella(item.productoId, client);
+        }
       }
 
       const detalleRes = await client.query(
@@ -56,11 +74,11 @@ export const crearPedido = async (req, res) => {
           pedidoId,
           item.productoId,
           item.productoNombre,
-          item.cantidad,
+          cantidadItem,
           item.precio,
           item.modo || "Bar",
-          item.fraccion || 1,
-          item.precio * item.cantidad,
+          fraccionItem,
+          item.precio * cantidadItem,
         ]
       );
       const detalleId = detalleRes.rows[0].id;
@@ -69,8 +87,8 @@ export const crearPedido = async (req, res) => {
       const personalItems = item.personal || item.chicas || [];
 
       if (personalItems.length > 0) {
-        const montoBase = obtenerMontoBase(item.productoNombre);
-        const montoTotal = montoBase * item.fraccion * item.cantidad;
+        const montoBase = obtenerMontoBase(item.productoNombre, productoCategoria);
+        const montoTotal = montoBase * fraccionItem * cantidadItem;
         const cantidad = personalItems.length;
         const montoPorPersona = montoTotal / cantidad;
 

@@ -34,6 +34,17 @@ export function ModalAsignacion({ open, onClose, item, onGuardar, personal }: Mo
 
   if (!item) return null;
 
+  const obtenerPagoUnitario = () => {
+    const categoria = item.productoCategoria?.toLowerCase() || '';
+    const nombre = item.productoNombre?.toLowerCase() || '';
+
+    if (categoria === 'vaso') return 15;
+    if (categoria === 'cerveza' || nombre.includes('cerveza')) return 50;
+    if (nombre.includes('vaso')) return 15;
+
+    return 150;
+  };
+
   const handleTogglePersonal = (id: string) => {
     if (personalSeleccionado.includes(id)) {
       setPersonalSeleccionado(personalSeleccionado.filter(i => i !== id));
@@ -45,9 +56,7 @@ export function ModalAsignacion({ open, onClose, item, onGuardar, personal }: Mo
   const calcularReparto = (): PersonalParticipante[] => {
     if (modo === 'Bar' || personalSeleccionado.length === 0) return [];
 
-    const nombre = item.productoNombre?.toLowerCase() || '';
-    const esCerveza = nombre.includes('cerveza') || nombre.includes('vaso');
-    const pagoUnitario = esCerveza ? 50 : 150;
+    const pagoUnitario = obtenerPagoUnitario();
     const gananciaBase = pagoUnitario * fraccion * cantidad;
     const porcentajePorPersona = 100 / personalSeleccionado.length;
     const montoPorPersona = gananciaBase / personalSeleccionado.length;
@@ -58,7 +67,7 @@ export function ModalAsignacion({ open, onClose, item, onGuardar, personal }: Mo
         id: p.id,
         nombreArtistico: p.nombre_artistico,
         porcentaje: porcentajePorPersona,
-        montoFicha: Math.round(montoPorPersona),
+        montoFicha: montoPorPersona,
       };
     });
   };
@@ -67,15 +76,12 @@ export function ModalAsignacion({ open, onClose, item, onGuardar, personal }: Mo
 
   const handleGuardar = () => {
     const precioFinal = item.precio * fraccion;
-    const nombre = item.productoNombre?.toLowerCase() || '';
-    const esCerveza = nombre.includes('cerveza') || nombre.includes('vaso');
-    const pagoUnitario = esCerveza ? 50 : 150;
-    const gananciaBase = pagoUnitario * fraccion * cantidad;
 
     const itemCompleto: ItemOrden = {
       id: '',
       productoId: item.productoId,
       productoNombre: item.productoNombre,
+      productoCategoria: item.productoCategoria,
       cantidad,
       precio: precioFinal,
       modo,
