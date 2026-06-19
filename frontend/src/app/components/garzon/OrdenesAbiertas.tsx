@@ -52,6 +52,14 @@ export function OrdenesAbiertas({ refreshKey, onAction }: OrdenesAbiertasProps) 
     return `${dia}/${mes} ${dias[f.getDay()]} ${turno}`;
   };
 
+  const calcularTotalItem = (item: any) => {
+    return Number(item.subtotal) || (Number(item.precio) || 0) * (Number(item.cantidad) || 1);
+  };
+
+  const calcularTotalOrden = (orden: any) => {
+    return orden.items.reduce((total: number, item: any) => total + calcularTotalItem(item), 0);
+  };
+
   const ordenesAgrupadas = ordenes.reduce((acc: any, orden: any) => {
     const grupo = getGrupoTurno(orden.fecha);
     if (!acc[grupo]) acc[grupo] = [];
@@ -120,6 +128,7 @@ export function OrdenesAbiertas({ refreshKey, onAction }: OrdenesAbiertasProps) 
                               <span>
                                 {item.productoNombre}
                                 {" - "}
+                                {Number(item.cantidad) > 1 && `${item.cantidad} x `}
                                 {item.fraccion === 0.5 ? "MEDIA" : "BOTELLA"}
                                 {item.modo === "Bar" ? " BAR" : ""}
                               </span>
@@ -129,9 +138,7 @@ export function OrdenesAbiertas({ refreshKey, onAction }: OrdenesAbiertasProps) 
 
                         <div className="pt-3 border-t border-border flex items-center justify-between">
                           <div className="flex items-center gap-1 text-primary font-semibold">
-                            {orden.items.slice(0, 2).map((item: any) => (
-                              <span key={item.id}>Bs {item.precio}</span>
-                            ))}
+                            <span>Bs {calcularTotalOrden(orden).toLocaleString()}</span>
                           </div>
                           <Button
                             size="sm"
