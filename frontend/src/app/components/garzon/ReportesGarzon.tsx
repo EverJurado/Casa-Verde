@@ -291,6 +291,13 @@ export function ReportesGarzon() {
     return cantidad;
   };
 
+  const calcularTotalDetalle = (detalle: any) => {
+    const cantidad = Number(detalle.cantidad) || 1;
+    const precio = Number(detalle.precio) || 0;
+
+    return precio * cantidad;
+  };
+
   return (
 
     <Tabs
@@ -377,9 +384,10 @@ export function ReportesGarzon() {
 
                 <TableRow>
                   <TableHead>Producto</TableHead>
+                  <TableHead>Precio</TableHead>
                   <TableHead>Hora</TableHead>
                   <TableHead>Cantidad</TableHead>
-                  <TableHead>Precio</TableHead>
+                  <TableHead>Total</TableHead>
                 </TableRow>
 
               </TableHeader>
@@ -395,6 +403,10 @@ export function ReportesGarzon() {
                     </TableCell>
 
                     <TableCell>
+                      ${Number(d.precio).toFixed(2)}
+                    </TableCell>
+
+                    <TableCell>
                       {d.hora}
                     </TableCell>
 
@@ -403,7 +415,7 @@ export function ReportesGarzon() {
                     </TableCell>
 
                     <TableCell>
-                      ${Number(d.precio).toFixed(2)}
+                      ${calcularTotalDetalle(d).toFixed(2)}
                     </TableCell>
 
                   </TableRow>
