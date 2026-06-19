@@ -148,24 +148,33 @@ export const obtenerReportes = async (req, res) => {
       await Promise.all([
         pool.query(`
           SELECT TO_CHAR(fecha, 'DD/MM') as dia, SUM(total) as ventas
-          FROM pedidos WHERE fecha >= $1 AND fecha <= $2
+          FROM pedidos
+          WHERE fecha >= $1::date
+            AND fecha < ($2::date + INTERVAL '1 day')
           GROUP BY dia, DATE(fecha) ORDER BY DATE(fecha)
         `, [startDate, endDate]),
 
         pool.query(`
           SELECT g.nombre, COALESCE(SUM(p.total),0) as ventas
           FROM usuarios g
-          LEFT JOIN pedidos p ON g.id = p.garzon_id AND p.fecha >= $1 AND p.fecha <= $2
+          LEFT JOIN pedidos p
+            ON g.id = p.garzon_id
+           AND p.fecha >= $1::date
+           AND p.fecha < ($2::date + INTERVAL '1 day')
           WHERE g.rol = 'garzon'
           GROUP BY g.nombre ORDER BY ventas DESC
         `, [startDate, endDate]),
 
         pool.query(`
-          SELECT c.nombre_artistico as nombre, COALESCE(SUM(pp.monto),0) as fichas
+          SELECT c.nombre_artistico as nombre,
+                 COALESCE(SUM(CASE WHEN p.id IS NOT NULL THEN pp.monto ELSE 0 END),0) as fichas
           FROM personal c
           LEFT JOIN pedido_personal pp ON pp.personal_id = c.id
           LEFT JOIN pedido_detalle pd ON pp.pedido_detalle_id = pd.id
-          LEFT JOIN pedidos p ON pd.pedido_id = p.id AND p.fecha >= $1 AND p.fecha <= $2
+          LEFT JOIN pedidos p
+            ON pd.pedido_id = p.id
+           AND p.fecha >= $1::date
+           AND p.fecha < ($2::date + INTERVAL '1 day')
           GROUP BY c.nombre_artistico ORDER BY fichas DESC
         `, [startDate, endDate]),
 
@@ -175,13 +184,16 @@ export const obtenerReportes = async (req, res) => {
                  COALESCE(SUM(pd.subtotal),0) as ventas
           FROM pedido_detalle pd
           JOIN pedidos p ON p.id = pd.pedido_id
-          WHERE p.fecha >= $1 AND p.fecha <= $2
+          WHERE p.fecha >= $1::date
+            AND p.fecha < ($2::date + INTERVAL '1 day')
           GROUP BY pd.producto_nombre ORDER BY cantidad_vendida DESC LIMIT 5
         `, [startDate, endDate]),
 
         pool.query(`
           SELECT COALESCE(SUM(total),0) as ventas_mes, COUNT(*) as pedidos
-          FROM pedidos WHERE fecha >= $1 AND fecha <= $2
+          FROM pedidos
+          WHERE fecha >= $1::date
+            AND fecha < ($2::date + INTERVAL '1 day')
         `, [startDate, endDate]),
       ]);
 

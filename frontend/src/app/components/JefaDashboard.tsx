@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import { 
   TrendingUp, 
@@ -21,18 +21,13 @@ import {
   ResponsiveContainer,
   Legend
 } from 'recharts';
-import {
-  MOCK_VENTAS_POR_DIA,
-  MOCK_VENTAS_POR_GARZON,
-  MOCK_FICHAS_POR_PERSONAL,
-} from '../data/mockData';
 import { formatCurrency } from '../utils/pdfGenerator';
 import { Button } from './ui/button';
 
 export function JefaDashboard() {
-  const [ventasPorDia, setVentasPorDia] = useState<any[]>(MOCK_VENTAS_POR_DIA);
-  const [ventasPorGarzon, setVentasPorGarzon] = useState<any[]>(MOCK_VENTAS_POR_GARZON);
-  const [fichasPorPersonal, setFichasPorChica] = useState<any[]>(MOCK_FICHAS_POR_PERSONAL);
+  const [ventasPorDia, setVentasPorDia] = useState<any[]>([]);
+  const [ventasPorGarzon, setVentasPorGarzon] = useState<any[]>([]);
+  const [fichasPorPersonal, setFichasPorChica] = useState<any[]>([]);
   const [productosMasVendidos, setProductosMasVendidos] = useState<any[]>([]);
   const [totales, setTotales] = useState({ ventas_mes: 0, pedidos: 0 });
   const [statsGarzones, setStatsGarzones] = useState({ activos: 0, inactivos: 0 });
@@ -56,6 +51,22 @@ export function JefaDashboard() {
     to: new Date()
   });
 
+  const rangesRef = useRef({
+    ventasPorDiaRange,
+    ventasPorGarzonRange,
+    productosRange,
+    fichasRange,
+  });
+
+  useEffect(() => {
+    rangesRef.current = {
+      ventasPorDiaRange,
+      ventasPorGarzonRange,
+      productosRange,
+      fichasRange,
+    };
+  }, [ventasPorDiaRange, ventasPorGarzonRange, productosRange, fichasRange]);
+
   const fetchVentasPorDia = async (startDate?: Date, endDate?: Date) => {
     try {
       const params = new URLSearchParams();
@@ -63,10 +74,10 @@ export function JefaDashboard() {
       if (endDate) params.append('end_date', endDate.toISOString().split('T')[0]);
 
       const res = await axios.get(`https://casa-verde-production.up.railway.app/api/garzones/reportes?${params.toString()}`);
-      setVentasPorDia(res.data.ventasPorDia || MOCK_VENTAS_POR_DIA);
+      setVentasPorDia(res.data.ventasPorDia || []);
     } catch (error) {
       console.error('Error cargando ventas por día:', error);
-      setVentasPorDia(MOCK_VENTAS_POR_DIA);
+      setVentasPorDia([]);
     }
   };
 
@@ -77,10 +88,10 @@ export function JefaDashboard() {
       if (endDate) params.append('end_date', endDate.toISOString().split('T')[0]);
 
       const res = await axios.get(`https://casa-verde-production.up.railway.app/api/garzones/reportes?${params.toString()}`);
-      setVentasPorGarzon(res.data.ventasPorGarzon || MOCK_VENTAS_POR_GARZON);
+      setVentasPorGarzon(res.data.ventasPorGarzon || []);
     } catch (error) {
       console.error('Error cargando ventas por garzón:', error);
-      setVentasPorGarzon(MOCK_VENTAS_POR_GARZON);
+      setVentasPorGarzon([]);
     }
   };
 
@@ -105,10 +116,10 @@ export function JefaDashboard() {
       if (endDate) params.append('end_date', endDate.toISOString().split('T')[0]);
 
       const res = await axios.get(`https://casa-verde-production.up.railway.app/api/garzones/reportes?${params.toString()}`);
-      setFichasPorChica(res.data.fichasPorPersonal || MOCK_FICHAS_POR_PERSONAL);
+      setFichasPorChica(res.data.fichasPorPersonal || []);
     } catch (error) {
       console.error('Error cargando fichas:', error);
-      setFichasPorChica(MOCK_FICHAS_POR_PERSONAL);
+      setFichasPorChica([]);
     }
   };
 
@@ -138,16 +149,31 @@ export function JefaDashboard() {
 
   useEffect(() => {
     const loadAllData = async () => {
+      const {
+        ventasPorDiaRange: diaRange,
+        ventasPorGarzonRange: garzonRange,
+        productosRange: productosActualRange,
+        fichasRange: fichasActualRange,
+      } = rangesRef.current;
+
       await Promise.all([
-        fetchVentasPorDia(ventasPorDiaRange.from, ventasPorDiaRange.to),
-        fetchVentasPorGarzon(ventasPorGarzonRange.from, ventasPorGarzonRange.to),
-        fetchProductos(productosRange.from, productosRange.to),
-        fetchFichas(fichasRange.from, fichasRange.to),
+        fetchVentasPorDia(diaRange.from, diaRange.to),
+        fetchVentasPorGarzon(garzonRange.from, garzonRange.to),
+        fetchProductos(productosActualRange.from, productosActualRange.to),
+        fetchFichas(fichasActualRange.from, fichasActualRange.to),
         fetchTotales(),
         fetchStatsGarzones(),
       ]);
     };
+
     loadAllData();
+    const refreshInterval = window.setInterval(loadAllData, 30000);
+    window.addEventListener('focus', loadAllData);
+
+    return () => {
+      window.clearInterval(refreshInterval);
+      window.removeEventListener('focus', loadAllData);
+    };
   }, []);
 
   const handleApplyVentasPorDiaFilter = () => {
