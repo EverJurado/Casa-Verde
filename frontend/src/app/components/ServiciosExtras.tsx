@@ -67,24 +67,34 @@ export function ServiciosExtras() {
   };
 
   const cargarServiciosActivos = async () => {
-    const res = await fetch("https://casa-verde-production.up.railway.app/api/servicios-extras");
-    const data = await res.json();
+    try {
+      const res = await fetch("https://casa-verde-production.up.railway.app/api/servicios-extras");
+      const data = await res.json();
 
-    const formateados = data.map((s: any) => ({
-      id: s.id,
-      fecha: s.fecha_local,
-      personalId: s.personal_id,
-      personalNombre: s.nombre_artistico,
-      tipo: s.tipo,
-      precio: Number(s.monto),
-      porcentajePersonal: Number(s.porcentaje_personal),
-      montoPersonal: Number(s.monto_personal),
-      duracionMinutos: s.duracion_minutos,
-      horaFin: s.hora_fin_local,
-      garzon_id: s.garzon_id,
-    }));
+      if (!res.ok) {
+        throw new Error(data?.error || "Error cargando servicios");
+      }
 
-    setServicios(formateados);
+      const serviciosData = Array.isArray(data) ? data : [];
+      const formateados = serviciosData.map((s: any) => ({
+        id: s.id,
+        fecha: s.fecha_local || s.fecha,
+        personalId: s.personal_id,
+        personalNombre: s.nombre_artistico,
+        tipo: s.tipo,
+        precio: Number(s.monto),
+        porcentajePersonal: Number(s.porcentaje_personal),
+        montoPersonal: Number(s.monto_personal),
+        duracionMinutos: s.duracion_minutos,
+        horaFin: s.hora_fin_local || s.hora_fin || s.fecha,
+        garzon_id: s.garzon_id,
+      }));
+
+      setServicios(formateados);
+    } catch (error) {
+      console.error("Error al cargar servicios:", error);
+      setServicios([]);
+    }
   };
 
   const personalOcupado = (id: string) => {
@@ -154,12 +164,18 @@ export function ServiciosExtras() {
         ? `https://casa-verde-production.up.railway.app/api/servicios-extras/${selectedServicio?.id}`
         : 'https://casa-verde-production.up.railway.app/api/servicios-extras';
 
-      await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+      const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data?.error || "No se pudo registrar el servicio");
+      }
 
       await cargarServiciosActivos();
       resetForm();
     } catch (error) {
       console.error(error);
+      alert(error instanceof Error ? error.message : "No se pudo registrar el servicio");
     }
   };
 
